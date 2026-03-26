@@ -1351,7 +1351,7 @@ body.lang-en .toast-container { right:auto; left:20px; }
     </div>
     <div class="footer-section">
       <h4 data-key="contact_us">تواصل معنا</h4>
-      <p><i class="fas fa-envelope" aria-hidden="true"></i> mrhma6722@gmail.com</p>
+      <p><i class="fas fa-envelope" aria-hidden="true"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="670a150f0a065150555527000a060e0b4904080a">[email&#160;protected]</a></p>
       <p><i class="fas fa-phone" aria-hidden="true"></i> +971 56 343 3056</p>
     </div>
   </div>
@@ -1360,7 +1360,7 @@ body.lang-en .toast-container { right:auto; left:20px; }
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 'use strict';
 
 // ==========================================
@@ -2236,8 +2236,9 @@ function renderDetail(pid) {
           ${summaryHtml}
           <div class="write-review">
             <h4>${t('write_review')}</h4>
-            <label for="rName">${t('your_name')}</label>
-            <input class="review-name-input" id="rName" type="text" placeholder="${t('your_name')}" autocomplete="name">
+            ${currentUser ? `
+            <label for="rName">اسمك (اختياري — سيظهر كـ "مجهول" إن تركته فارغاً)</label>
+            <input class="review-name-input" id="rName" type="text" placeholder="اتركه فارغاً للنشر كـ مجهول" autocomplete="name">
             <div class="star-picker" id="starPicker" role="group" aria-label="اختر تقييمك">
               <i class="far fa-star" data-s="5" tabindex="0" role="button" aria-label="5 نجوم"></i>
               <i class="far fa-star" data-s="4" tabindex="0" role="button" aria-label="4 نجوم"></i>
@@ -2250,6 +2251,15 @@ function renderDetail(pid) {
             <button class="submit-review-btn" onclick="submitReview(${p.id})">
               <i class="fas fa-paper-plane" aria-hidden="true"></i> ${t('submit_review')}
             </button>
+            ` : `
+            <div style="text-align:center;padding:1.5rem;background:var(--clr-card);border-radius:var(--radius-md);border:1.5px dashed var(--clr-border)">
+              <i class="fas fa-lock" style="font-size:1.8rem;color:var(--clr-primary);margin-bottom:.6rem;display:block"></i>
+              <p style="margin-bottom:1rem;color:var(--clr-text-muted);font-size:.9rem">يجب تسجيل الدخول لكتابة تقييم</p>
+              <button class="submit-review-btn" onclick="document.getElementById('authModal').classList.add('active')" style="padding:.6rem 1.5rem">
+                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+              </button>
+            </div>
+            `}
           </div>
           <div class="reviews-list" aria-label="قائمة التقييمات">${reviewsList}</div>
         </section>
@@ -2278,14 +2288,27 @@ window.adjQ = function(d) { const i = document.getElementById('qtyI'); if (i) { 
 window.addFromDetail = function(pid) { const q = parseInt(document.getElementById('qtyI')?.value || 1); addToCart(pid, q); };
 window.buyNow = function(pid) { const q = parseInt(document.getElementById('qtyI')?.value || 1); const p = products.find(x => x.id === pid); if (p) { cart = [{ ...p, quantity: q }]; drawCart(); openPayment(); } };
 window.submitReview = function(pid) {
+  if (!currentUser) {
+    toast(t('login_required'), 'error');
+    document.getElementById('authModal').classList.add('active');
+    return;
+  }
   const stars = window.getCurrentStars ? window.getCurrentStars() : 0;
   const text = document.getElementById('rText')?.value?.trim() || '';
   const rawName = document.getElementById('rName')?.value?.trim() || '';
-  const name = rawName || 'مجهول';
+  // Show as anonymous to other users but store real identity for admin
+  const displayName = rawName || 'مجهول';
   if (!stars) { toast(t('rate_product'), 'error'); return; }
   if (!text) { toast(t('write_comment'), 'error'); return; }
   if (!db) return;
-  const review = { stars, text, author: name, date: new Date().toISOString() };
+  const review = {
+    stars, text,
+    author: displayName,
+    userId: currentUser.uid,
+    userEmail: currentUser.email || '',
+    userName: currentUser.displayName || currentUser.email?.split('@')[0] || '',
+    date: new Date().toISOString()
+  };
   db.ref('products/' + pid + '/reviews').push().set(review)
     .then(() => db.ref('products/' + pid + '/reviews').once('value'))
     .then(snap => {
@@ -2460,14 +2483,17 @@ function generateUniqueOrderId() {
 
 function saveOrder(data) {
   const orderId = generateUniqueOrderId();
-  const orderData = { ...data, orderId };
-  if (!currentUser) {
-    try { const o = JSON.parse(localStorage.getItem('orders_guest')) || []; o.push(orderData); localStorage.setItem('orders_guest', JSON.stringify(o)); } catch(e) {}
-    return Promise.resolve();
-  }
-  if (!db) return Promise.resolve();
+  const orderData = {
+    ...data,
+    orderId,
+    userId: currentUser?.uid || '',
+    userEmail: currentUser?.email || '',
+    userName: currentUser?.displayName || currentUser?.email?.split('@')[0] || '',
+    status: 'pending'
+  };
+  if (!currentUser || !db) return Promise.resolve();
   const nr = db.ref('users/' + currentUser.uid + '/orders').push();
-  return nr.set(orderData).then(() => db.ref('orders/' + nr.key).set({ ...orderData, userId: currentUser.uid, userEmail: currentUser.email, status: 'pending' }));
+  return nr.set(orderData).then(() => db.ref('orders/' + nr.key).set(orderData));
 }
 
 // ==========================================
@@ -2652,6 +2678,12 @@ function openPayment(prefill) {
 window.openPaymentModal = openPayment;
 
 window.sendWhatsapp = function() {
+  if (!currentUser) {
+    toast(t('login_required'), 'error');
+    document.getElementById('paymentModal').classList.remove('active');
+    document.getElementById('authModal').classList.add('active');
+    return;
+  }
   const name = document.getElementById('payName')?.value?.trim(),
         email = document.getElementById('payEmail')?.value?.trim(),
         phone = document.getElementById('payPhone')?.value?.trim(),
@@ -2770,6 +2802,22 @@ function handleAuthChange(user) {
   updUI();
   updateUserContainer();
   if (user) {
+    // Save/update profile for ALL login methods (Google, Facebook, email)
+    if (db) {
+      db.ref('users/' + user.uid + '/profile').once('value').then(snap => {
+        const existing = snap.exists() ? snap.val() : {};
+        const profile = {
+          name: existing.name || user.displayName || user.email?.split('@')[0] || 'مستخدم',
+          email: user.email || existing.email || '',
+          phone: existing.phone || '',
+          photoURL: user.photoURL || existing.photoURL || '',
+          createdAt: existing.createdAt || new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          provider: user.providerData[0]?.providerId || 'password'
+        };
+        return db.ref('users/' + user.uid + '/profile').set(profile);
+      });
+    }
     const p = prev ? Promise.resolve() : mergeGC();
     p.then(() => { loadCart(); loadWishlist(); loadAddrs(); });
   } else {
@@ -2860,7 +2908,16 @@ function init() {
 
   document.getElementById('cartIcon')?.addEventListener('click', () => document.getElementById('cartSidebar').classList.add('active'));
   document.getElementById('closeCart')?.addEventListener('click', () => document.getElementById('cartSidebar').classList.remove('active'));
-  document.getElementById('checkoutBtn')?.addEventListener('click', () => { document.getElementById('cartSidebar').classList.remove('active'); openPayment(); });
+  document.getElementById('checkoutBtn')?.addEventListener('click', () => {
+    if (!currentUser) {
+      document.getElementById('cartSidebar').classList.remove('active');
+      toast(t('login_required'), 'error');
+      document.getElementById('authModal').classList.add('active');
+      return;
+    }
+    document.getElementById('cartSidebar').classList.remove('active');
+    openPayment();
+  });
 
   document.getElementById('settingsIcon')?.addEventListener('click', () => {
     if (currentUser) document.getElementById('settingsModal').classList.add('active');
@@ -2928,9 +2985,4 @@ if (document.readyState === 'loading') {
 }
 
 // Screen reader helper class
-const style = document.createElement('style');
-style.textContent = '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}';
-document.head.appendChild(style);
-</script>
-</body>
-</html>
+const style = document.createEleme
