@@ -1868,21 +1868,6 @@ function loadLanguage() {
 // ==========================================
 function navigateTo(path) { window.location.hash = path; }
 function getHash() { return window.location.hash.replace('#', '') || '/'; }
-function renderRoute(path) {
-  if (!path || path === '/') { renderHome(); }
-  else if (path === '/products') renderProducts();
-  else if (path.startsWith('/product/')) renderDetail(parseInt(path.split('/')[2]));
-  else if (path === '/account') renderAccount();
-  else if (path === '/orders') renderOrders();
-  else if (path === '/addresses') renderAddresses();
-  else if (path === '/wishlist') renderWishlist();
-  else if (path === '/about') renderAbout();
-  else if (path === '/terms') renderTerms();
-  else renderHome();
-  updatePageTexts();
-  const main = document.getElementById('app');
-  if (main) main.focus();
-}
 window.addEventListener('hashchange', () => renderRoute(getHash()));
 
 
@@ -2028,19 +2013,10 @@ function rwBtns() {
 // PRODUCTS
 // ==========================================
 function loadProducts() {
-  if (!db) {
-    // Fallback if Firebase fails
-    dpProducts();
-    if (getHash() === '/products') refreshGrid();
-    return;
-  }
+  if (!db) return;
   db.ref('products').on('value', s => {
     const d = s.val();
     products = d ? Object.values(d).sort((a, b) => a.id - b.id) : [];
-    dpProducts();
-    if (getHash() === '/products') refreshGrid();
-  }, function(err) {
-    console.warn('Firebase products error:', err);
     dpProducts();
     if (getHash() === '/products') refreshGrid();
   });
@@ -2460,7 +2436,20 @@ function renderDetail(pid) {
           ${summaryHtml}
           <div class="write-review">
             <h4>${t('write_review')}</h4>
-            ${buildReviewForm(p.id)}
+            <label for="rName">${t('your_name')}</label>
+            <input class="review-name-input" id="rName" type="text" placeholder="${t('your_name')}" autocomplete="name">
+            <div class="star-picker" id="starPicker" role="group" aria-label="اختر تقييمك">
+              <i class="far fa-star" data-s="5" tabindex="0" role="button" aria-label="5 نجوم"></i>
+              <i class="far fa-star" data-s="4" tabindex="0" role="button" aria-label="4 نجوم"></i>
+              <i class="far fa-star" data-s="3" tabindex="0" role="button" aria-label="3 نجوم"></i>
+              <i class="far fa-star" data-s="2" tabindex="0" role="button" aria-label="2 نجوم"></i>
+              <i class="far fa-star" data-s="1" tabindex="0" role="button" aria-label="نجمة واحدة"></i>
+            </div>
+            <label for="rText" class="sr-only">تعليقك</label>
+            <textarea class="review-textarea" id="rText" rows="3" placeholder="شاركنا رأيك..." aria-label="اكتب تقييمك"></textarea>
+            <button class="submit-review-btn" onclick="submitReview(${p.id})">
+              <i class="fas fa-paper-plane" aria-hidden="true"></i> ${t('submit_review')}
+            </button>
           </div>
           <div class="reviews-list" aria-label="قائمة التقييمات">${reviewsList}</div>
         </section>
@@ -2488,39 +2477,11 @@ function renderDetail(pid) {
 window.adjQ = function(d) { const i = document.getElementById('qtyI'); if (i) { let v = parseInt(i.value) + d; if (v < 1) v = 1; if (v > 99) v = 99; i.value = v; } };
 window.addFromDetail = function(pid) { const q = parseInt(document.getElementById('qtyI')?.value || 1); addToCart(pid, q); };
 window.buyNow = function(pid) { const q = parseInt(document.getElementById('qtyI')?.value || 1); const p = products.find(x => x.id === pid); if (p) { cart = [{ ...p, quantity: q }]; drawCart(); openPayment(); } };
-
-function buildReviewForm(pid) {
-  if (!currentUser) {
-    return '<div style="text-align:center;padding:1.5rem;background:var(--clr-bg);border-radius:var(--radius-md);border:1.5px dashed var(--clr-border)">' +
-      '<i class="fas fa-lock" style="font-size:1.8rem;color:var(--clr-primary);margin-bottom:.6rem;display:block"></i>' +
-      '<p style="margin-bottom:1rem;color:var(--clr-text-muted);font-size:.9rem">' + t('login_required') + '</p>' +
-      '<button class="submit-review-btn" onclick="document.getElementById(&quot;authModal&quot;).classList.add(&quot;active&quot;)" style="padding:.6rem 1.5rem">' +
-      '<i class="fas fa-sign-in-alt"></i> ' + t('login') + '</button></div>';
-  }
-  return '<label for="rName">' + t('your_name') + '</label>' +
-    '<input class="review-name-input" id="rName" type="text" placeholder="' + (currentLang === 'ar' ? 'اتركه فارغاً للنشر كـ مجهول' : 'Leave blank to post anonymously') + '" autocomplete="name">' +
-    '<div class="star-picker" id="starPicker" role="group" aria-label="' + t('rate_product') + '">' +
-    '<i class="far fa-star" data-s="5" tabindex="0" role="button" aria-label="5 ' + t('reviews_label') + '"></i>' +
-    '<i class="far fa-star" data-s="4" tabindex="0" role="button" aria-label="4 ' + t('reviews_label') + '"></i>' +
-    '<i class="far fa-star" data-s="3" tabindex="0" role="button" aria-label="3 ' + t('reviews_label') + '"></i>' +
-    '<i class="far fa-star" data-s="2" tabindex="0" role="button" aria-label="2 ' + t('reviews_label') + '"></i>' +
-    '<i class="far fa-star" data-s="1" tabindex="0" role="button" aria-label="1 ' + t('reviews_label') + '"></i></div>' +
-    '<label for="rText" class="sr-only">' + t('write_comment') + '</label>' +
-    '<textarea class="review-textarea" id="rText" rows="3" placeholder="' + t('write_comment') + '..." aria-label="' + t('write_comment') + '"></textarea>' +
-    '<button class="submit-review-btn" onclick="submitReview(' + pid + ')">' +
-    '<i class="fas fa-paper-plane" aria-hidden="true"></i> ' + t('submit_review') + '</button>';
-}
-
 window.submitReview = function(pid) {
-  if (!currentUser) {
-    toast(t('login_required'), 'error');
-    document.getElementById('authModal').classList.add('active');
-    return;
-  }
   const stars = window.getCurrentStars ? window.getCurrentStars() : 0;
   const text = document.getElementById('rText')?.value?.trim() || '';
   const rawName = document.getElementById('rName')?.value?.trim() || '';
-  const name = rawName || (currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'مجهول'));
+  const name = rawName || 'مجهول';
   if (!stars) { toast(t('rate_product'), 'error'); return; }
   if (!text) { toast(t('write_comment'), 'error'); return; }
   if (!db) return;
@@ -2864,12 +2825,6 @@ window.renderWishlist = renderWishlist;
 // PAYMENT
 // ==========================================
 function openPayment(prefill) {
-  if (!currentUser) {
-    toast(t('login_required'), 'error');
-    document.getElementById('paymentModal').classList.remove('active');
-    document.getElementById('authModal').classList.add('active');
-    return;
-  }
   if (!cart.length) { toast(t('empty_cart'), 'error'); return; }
   const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
   const sum = document.getElementById('orderSummary');
@@ -2895,44 +2850,6 @@ function openPayment(prefill) {
   updatePageTexts();
 }
 window.openPaymentModal = openPayment;
-
-window.sendWhatsapp = function() {
-  if (!currentUser) {
-    toast(t('login_required'), 'error');
-    document.getElementById('paymentModal').classList.remove('active');
-    document.getElementById('authModal').classList.add('active');
-    return;
-  }
-  const name = document.getElementById('payName')?.value?.trim(),
-        email = document.getElementById('payEmail')?.value?.trim(),
-        phone = document.getElementById('payPhone')?.value?.trim(),
-        addr = document.getElementById('payAddress')?.value?.trim();
-  if (!name || !email || !phone || !addr) { toast(t('fill_all'), 'error'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast(currentLang==='ar'?'البريد الإلكتروني غير صحيح':'Invalid email', 'error'); return; }
-
-  const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-  let msg = '🛍️ *طلب جديد من SmartTech Store*%0A%0A';
-  msg += `👤 *العميل:* ${encodeURIComponent(name)}%0A`;
-  msg += `📧 *البريد:* ${encodeURIComponent(email)}%0A`;
-  msg += `📱 *الجوال:* ${encodeURIComponent(phone)}%0A`;
-  msg += `📍 *العنوان:* ${encodeURIComponent(addr)}%0A%0A📦 *المنتجات:*%0A`;
-  cart.forEach(i => { msg += `- ${encodeURIComponent(i.name)} (${i.quantity} × ${i.price} AED) = ${i.price * i.quantity} AED%0A`; });
-  msg += `%0A💰 *الإجمالي:* ${total} AED%0A%0A✅ الرجاء التواصل لتأكيد الطلب`;
-
-  const od = {
-    customer: { fullName: name, email, phone, address: addr },
-    order: JSON.parse(JSON.stringify(cart)),
-    total, date: new Date().toISOString(), status: 'pending'
-  };
-  saveOrder(od).then(() => {
-    window.open('https://wa.me/971563433056?text=' + msg, '_blank', 'noopener,noreferrer');
-    cart = [];
-    drawCart();
-    document.getElementById('paymentModal').classList.remove('active');
-    ['payName','payEmail','payPhone','payAddress'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    toast(t('order_sent'));
-  });
-};
 
 // ==========================================
 // RENDER: ABOUT & TERMS
@@ -3017,21 +2934,6 @@ function handleAuthChange(user) {
   updUI();
   updateUserContainer();
   if (user) {
-    // Save profile for ALL login types (Google/Facebook/Email)
-    if (db) {
-      db.ref('users/' + user.uid + '/profile').once('value').then(function(snap) {
-        var ex = snap.exists() ? snap.val() : {};
-        return db.ref('users/' + user.uid + '/profile').set({
-          name: ex.name || user.displayName || (user.email ? user.email.split('@')[0] : 'مستخدم'),
-          email: user.email || ex.email || '',
-          phone: ex.phone || '',
-          photoURL: user.photoURL || ex.photoURL || '',
-          createdAt: ex.createdAt || new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          provider: (user.providerData && user.providerData[0]) ? user.providerData[0].providerId : 'password'
-        });
-      }).catch(function(e){});
-    }
     const p = prev ? Promise.resolve() : mergeGC();
     p.then(() => { loadCart(); loadWishlist(); loadAddrs(); });
   } else {
@@ -3098,7 +3000,94 @@ window.closeSettingsAndGo = closeSettingsAndGo;
 
 
 // ==========================================
-// SMART SEARCH
+// INIT
+// ==========================================
+function init() {
+  loadDark();
+  loadLanguage();
+  drawCart(false);
+  renderRoute(getHash());
+
+  // Event listeners
+  document.getElementById('searchIcon')?.addEventListener('click', openSmartSearch);
+  document.getElementById('closeSearch')?.addEventListener('click', () => document.getElementById('searchModal').classList.remove('active'));
+  document.getElementById('searchInput')?.addEventListener('input', e => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => renderSearchBody(e.target.value.trim()), 180);
+  });
+  document.getElementById('searchInput')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const q = document.getElementById('searchInput').value.trim();
+      if (q) doSearch(q);
+    }
+  });
+  document.getElementById('searchModal')?.addEventListener('click', e => { if (e.target.id === 'searchModal') document.getElementById('searchModal').classList.remove('active'); });
+
+  document.getElementById('cartIcon')?.addEventListener('click', () => document.getElementById('cartSidebar').classList.add('active'));
+  document.getElementById('closeCart')?.addEventListener('click', () => document.getElementById('cartSidebar').classList.remove('active'));
+  document.getElementById('checkoutBtn')?.addEventListener('click', () => { document.getElementById('cartSidebar').classList.remove('active'); openPayment(); });
+
+  document.getElementById('settingsIcon')?.addEventListener('click', () => {
+    if (currentUser) document.getElementById('settingsModal').classList.add('active');
+    else { toast(t('login_required'), 'error'); document.getElementById('authModal').classList.add('active'); }
+  });
+
+  document.getElementById('wishlistNavBtn')?.addEventListener('click', () => {
+    if (currentUser) navigateTo('/wishlist');
+    else { toast(t('login_required'), 'error'); document.getElementById('authModal').classList.add('active'); }
+  });
+
+  document.getElementById('closeAuth')?.addEventListener('click', () => document.getElementById('authModal').classList.remove('active'));
+  document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('active'));
+  document.getElementById('closePayment')?.addEventListener('click', () => document.getElementById('paymentModal').classList.remove('active'));
+
+  // Close modals on overlay click
+  ['authModal','settingsModal','paymentModal'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', e => { if (e.target.id === id) document.getElementById(id).classList.remove('active'); });
+  });
+
+  // Close user popup on outside click
+  document.addEventListener('click', e => {
+    if (!document.getElementById('userContainer')?.contains(e.target) && !document.getElementById('userPopup')?.contains(e.target)) closeUserPopup();
+  });
+
+  // Auth tabs
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.auth-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+      document.getElementById(tab.dataset.tab + 'Form')?.classList.add('active');
+    });
+  });
+
+  // Keyboard: close modal on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ['authModal','settingsModal','paymentModal','searchModal','invoiceModal'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+      document.getElementById('cartSidebar')?.classList.remove('active');
+      closeUserPopup();
+    }
+  });
+
+  // User popup hide on mouseleave
+  document.getElementById('userPopup')?.addEventListener('mouseleave', () => {
+    setTimeout(() => { if (!document.getElementById('userPopup')?.matches(':hover')) closeUserPopup(); }, 150);
+  });
+
+  // Firebase init (after DOM ready + scripts loaded)
+  if (typeof firebase !== 'undefined') {
+    initFirebase();
+    loadProducts();
+  } else {
+    window.addEventListener('load', () => { initFirebase(); loadProducts(); });
+  }
+}
+
+
+// ==========================================
+// 🔍 SMART SEARCH ENGINE
 // ==========================================
 let searchHistory = [];
 let activeSearchQuery = '';
@@ -3150,6 +3139,7 @@ function getSearchSuggestions(query) {
   const sugg = new Set();
   products.forEach(p => {
     if (p.name.toLowerCase().includes(q)) {
+      // suggest key words from name
       const words = p.name.split(' ');
       words.forEach(w => { if (w.toLowerCase().startsWith(q) && w.length > q.length) sugg.add(w); });
     }
@@ -3170,6 +3160,7 @@ function renderSearchBody(query) {
   const html = [];
 
   if (!query) {
+    // Show history + popular tags
     if (searchHistory.length) {
       html.push('<div class="search-section-title">' + (currentLang === 'ar' ? '🕐 عمليات البحث الأخيرة' : '🕐 Recent Searches') + '</div>');
       searchHistory.forEach(s => {
@@ -3250,14 +3241,18 @@ function openSmartSearch() {
 }
 
 // ==========================================
-// RECOMMENDATIONS
+// 🤖 AI RECOMMENDATIONS ENGINE
 // ==========================================
+
+/** Jaccard similarity between two tag sets */
 function jaccardSim(tagsA, tagsB) {
   const a = new Set(tagsA), b = new Set(tagsB);
   const intersection = [...a].filter(t => b.has(t)).length;
   const union = new Set([...a, ...b]).size;
   return union > 0 ? intersection / union : 0;
 }
+
+/** Similar products based on tag overlap */
 function getSimilarProducts(pid, limit = 6) {
   const p = products.find(x => x.id === pid);
   if (!p) return [];
@@ -3269,6 +3264,8 @@ function getSimilarProducts(pid, limit = 6) {
     .sort((a,b) => b._sim - a._sim || (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
     .slice(0, limit);
 }
+
+/** "People also bought" from localStorage orders + Firebase */
 function getPeopleAlsoBought(pid, limit = 6) {
   let orders = [];
   try { orders = JSON.parse(localStorage.getItem('orders_guest')) || []; } catch(e) {}
@@ -3283,15 +3280,20 @@ function getPeopleAlsoBought(pid, limit = 6) {
     .sort((a,b) => b[1]-a[1])
     .map(([id]) => products.find(x => x.id === parseInt(id)))
     .filter(Boolean);
+
+  // Fill up with similar if not enough
   if (fromOrders.length < limit) {
     const similar = getSimilarProducts(pid, limit);
     similar.forEach(p => { if (!fromOrders.find(x => x.id === p.id)) fromOrders.push(p); });
   }
   return fromOrders.slice(0, limit);
 }
+
+/** "For You" based on wishlist + cart tags */
 function getForYou(limit = 8) {
   const tagScore = {};
   const seen = new Set([...wishlist, ...cart.map(i => i.id)]);
+
   wishlist.forEach(id => {
     const p = products.find(x => x.id === id);
     if (p) (p.tags || []).forEach(t => { tagScore[t] = (tagScore[t] || 0) + 3; });
@@ -3299,6 +3301,7 @@ function getForYou(limit = 8) {
   cart.forEach(item => {
     (item.tags || []).forEach(t => { tagScore[t] = (tagScore[t] || 0) + 2; });
   });
+  // Also from search & view history
   try {
     const vh = JSON.parse(localStorage.getItem('view_history') || '[]');
     vh.forEach(id => {
@@ -3306,7 +3309,9 @@ function getForYou(limit = 8) {
       if (p) (p.tags || []).forEach(t => { tagScore[t] = (tagScore[t] || 0) + 1; });
     });
   } catch(e) {}
+
   const hasPrefs = Object.keys(tagScore).length > 0;
+
   return products
     .filter(p => !seen.has(p.id))
     .map(p => {
@@ -3317,6 +3322,8 @@ function getForYou(limit = 8) {
     .sort((a,b) => b._score - a._score)
     .slice(0, limit);
 }
+
+/** Track product views */
 function trackView(pid) {
   try {
     let vh = JSON.parse(localStorage.getItem('view_history') || '[]');
@@ -3324,6 +3331,8 @@ function trackView(pid) {
     localStorage.setItem('view_history', JSON.stringify(vh));
   } catch(e) {}
 }
+
+/** Render a recommendations row */
 function renderRecCards(list) {
   if (!list.length) return '<p style="color:var(--clr-text-muted);text-align:center;padding:1rem">' + (currentLang==='ar'?'لا توجد توصيات حالياً':'No recommendations yet') + '</p>';
   return '<div class="recs-grid">' + list.map(p => `
@@ -3341,15 +3350,19 @@ function renderRecCards(list) {
       </button>
     </div>`).join('') + '</div>';
 }
+
+/** Inject recommendations into product detail page */
 function injectRecommendations(pid) {
   const container = document.getElementById('recsContainer');
   if (!container) return;
   const similar = getSimilarProducts(pid);
   const alsoBought = getPeopleAlsoBought(pid);
+
   const tabs = [
     { id:'sim', icon:'fas fa-th-large', label: currentLang==='ar'?'منتجات مشابهة':'Similar Products', data: similar },
     { id:'also', icon:'fas fa-users', label: currentLang==='ar'?'اشتروا أيضاً':'Also Bought', data: alsoBought },
   ];
+
   container.innerHTML = `
     <div class="recs-section" style="grid-column:1/-1">
       <h3><i class="fas fa-robot" aria-hidden="true"></i>
@@ -3362,6 +3375,7 @@ function injectRecommendations(pid) {
       ${tabs.map((tab, i) => `<div class="recs-panel ${i===0?'active':''}" id="rec-panel-${tab.id}">${renderRecCards(tab.data)}</div>`).join('')}
     </div>`;
 }
+
 window.switchRecTab = function(btn) {
   const container = btn.closest('.recs-section');
   container.querySelectorAll('.rec-tab').forEach(t => t.classList.remove('active'));
@@ -3369,17 +3383,23 @@ window.switchRecTab = function(btn) {
   btn.classList.add('active');
   document.getElementById(btn.dataset.panel)?.classList.add('active');
 };
+
+/** Render "For You" strip on home page */
 function renderForYouSection() {
   const existing = document.getElementById('forYouSection');
   if (existing) existing.remove();
+
   const forYou = getForYou(8);
   if (!forYou.length) return;
+
   const homeProds = document.querySelector('.home-products');
   if (!homeProds) return;
+
   const section = document.createElement('section');
   section.id = 'forYouSection';
   section.className = 'for-you-section';
   section.setAttribute('aria-label', currentLang==='ar'?'منتجات مقترحة لك':'Recommended For You');
+
   section.innerHTML = `
     <h2>
       <span class="ai-badge"><i class="fas fa-brain" aria-hidden="true"></i> AI</span>
@@ -3398,24 +3418,30 @@ function renderForYouSection() {
           </div>
         </div>`).join('')}
     </div>`;
+
   homeProds.parentNode.insertBefore(section, homeProds);
 }
 
 // ==========================================
-// INVOICE
+// 🧾 INVOICE GENERATOR
 // ==========================================
 function generateInvoice(orderData) {
   const { orderId, customer, order: items, total, date } = orderData;
   const dateStr = new Date(date).toLocaleDateString(currentLang==='ar'?'ar-AE':'en-AE', { year:'numeric', month:'long', day:'numeric' });
   const isAr = currentLang === 'ar';
+
   const rows = (items || []).map(item => `
     <tr>
       <td>${escapeHTML(item.name)}</td>
       <td style="text-align:center">${item.quantity}</td>
       <td style="text-align:center">${item.price.toLocaleString()} AED</td>
       <td style="text-align:center;font-weight:700">${(item.price * item.quantity).toLocaleString()} AED</td>
-     </tr>`).join('');
+    </tr>`).join('');
+
   const subtotal = (items || []).reduce((s,i) => s + i.price * i.quantity, 0);
+  const vat = Math.round(subtotal * 0.05);
+  const grandTotal = subtotal; // total already includes VAT in this store
+
   document.getElementById('invoiceDoc').innerHTML = `
     <div class="invoice-doc" dir="rtl" lang="ar">
       <div class="invoice-header-band">
@@ -3448,13 +3474,27 @@ function generateInvoice(orderData) {
       <div style="overflow-x:auto;padding:1.5rem">
         <table class="invoice-table" style="direction:rtl">
           <thead>
-            <tr><th>${isAr?'المنتج':'Product'}</th><th style="text-align:center">${isAr?'الكمية':'Qty'}</th><th style="text-align:center">${isAr?'سعر الوحدة':'Unit Price'}</th><th style="text-align:center">${isAr?'الإجمالي':'Total'}</th></tr>
+            <tr>
+              <th>${isAr?'المنتج':'Product'}</th>
+              <th style="text-align:center">${isAr?'الكمية':'Qty'}</th>
+              <th style="text-align:center">${isAr?'سعر الوحدة':'Unit Price'}</th>
+              <th style="text-align:center">${isAr?'الإجمالي':'Total'}</th>
+            </tr>
           </thead>
           <tbody>${rows}</tbody>
           <tfoot>
-            <tr><td colspan="3" style="text-align:left">${isAr?'المجموع الفرعي':'Subtotal'}</td><td style="text-align:center">${subtotal.toLocaleString()} AED</td></tr>
-            <tr><td colspan="3" style="text-align:left">${isAr?'ضريبة القيمة المضافة (5%)':'VAT (5%)'}</td><td style="text-align:center">${isAr?'مشمول':'Included'}</td></tr>
-            <tr class="invoice-total-row"><td colspan="3" style="text-align:left;font-size:1rem">${isAr?'💰 الإجمالي الكلي':'💰 Grand Total'}</td><td style="text-align:center;color:#2563eb">${total.toLocaleString()} AED</td></tr>
+            <tr>
+              <td colspan="3" style="text-align:left">${isAr?'المجموع الفرعي':'Subtotal'}</td>
+              <td style="text-align:center">${subtotal.toLocaleString()} AED</td>
+            </tr>
+            <tr>
+              <td colspan="3" style="text-align:left">${isAr?'ضريبة القيمة المضافة (5%)':'VAT (5%)'}</td>
+              <td style="text-align:center">${isAr?'مشمول':'Included'}</td>
+            </tr>
+            <tr class="invoice-total-row">
+              <td colspan="3" style="text-align:left;font-size:1rem">${isAr?'💰 الإجمالي الكلي':'💰 Grand Total'}</td>
+              <td style="text-align:center;color:#2563eb">${grandTotal.toLocaleString()} AED</td>
+            </tr>
           </tfoot>
         </table>
       </div>
@@ -3464,14 +3504,16 @@ function generateInvoice(orderData) {
         <span>${isAr?'📦 سيتم التواصل معك قريباً لتأكيد الطلب':'📦 We will contact you soon to confirm your order'}</span>
       </div>
     </div>`;
+
   document.getElementById('invoiceTitle').textContent = isAr ? 'فاتورة #' + orderId : 'Invoice #' + orderId;
   document.getElementById('invoiceModal').classList.add('active');
 }
 window.generateInvoice = generateInvoice;
 
 // ==========================================
-// ENHANCED RENDER DETAIL
+// PATCH: Hook into existing functions
 // ==========================================
+
 const _origRenderDetail = renderDetail;
 function renderDetailEnhanced(pid) {
   _origRenderDetail(pid);
@@ -3487,8 +3529,8 @@ function renderDetailEnhanced(pid) {
     }
   }, 0);
 }
-window.renderDetail = renderDetailEnhanced;
-renderRoute = function(path) {
+
+function renderRoute(path) {
   if (!path || path === '/') { renderHome(); }
   else if (path === '/products') renderProducts();
   else if (path.startsWith('/product/')) renderDetailEnhanced(parseInt(path.split('/')[2]));
@@ -3502,102 +3544,53 @@ renderRoute = function(path) {
   updatePageTexts();
   const main = document.getElementById('app');
   if (main) main.focus();
-};
-
-// ==========================================
-// INIT
-// ==========================================
-function init() {
-  loadDark();
-  loadLanguage();
-  drawCart(false);
-  renderRoute(getHash());
-
-  document.getElementById('searchIcon')?.addEventListener('click', openSmartSearch);
-  document.getElementById('closeSearch')?.addEventListener('click', () => document.getElementById('searchModal').classList.remove('active'));
-  document.getElementById('searchInput')?.addEventListener('input', e => {
-    clearTimeout(searchDebounceTimer);
-    searchDebounceTimer = setTimeout(() => renderSearchBody(e.target.value.trim()), 180);
-  });
-  document.getElementById('searchInput')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const q = document.getElementById('searchInput').value.trim();
-      if (q) doSearch(q);
-    }
-  });
-  document.getElementById('searchModal')?.addEventListener('click', e => { if (e.target.id === 'searchModal') document.getElementById('searchModal').classList.remove('active'); });
-
-  document.getElementById('cartIcon')?.addEventListener('click', () => document.getElementById('cartSidebar').classList.add('active'));
-  document.getElementById('closeCart')?.addEventListener('click', () => document.getElementById('cartSidebar').classList.remove('active'));
-  document.getElementById('checkoutBtn')?.addEventListener('click', () => {
-    document.getElementById('cartSidebar').classList.remove('active');
-    openPayment();
-  });
-
-  document.getElementById('settingsIcon')?.addEventListener('click', () => {
-    if (currentUser) document.getElementById('settingsModal').classList.add('active');
-    else { toast(t('login_required'), 'error'); document.getElementById('authModal').classList.add('active'); }
-  });
-
-  document.getElementById('wishlistNavBtn')?.addEventListener('click', () => {
-    if (currentUser) navigateTo('/wishlist');
-    else { toast(t('login_required'), 'error'); document.getElementById('authModal').classList.add('active'); }
-  });
-
-  document.getElementById('closeAuth')?.addEventListener('click', () => document.getElementById('authModal').classList.remove('active'));
-  document.getElementById('closeSettings')?.addEventListener('click', () => document.getElementById('settingsModal').classList.remove('active'));
-  document.getElementById('closePayment')?.addEventListener('click', () => document.getElementById('paymentModal').classList.remove('active'));
-
-  ['authModal','settingsModal','paymentModal'].forEach(id => {
-    document.getElementById(id)?.addEventListener('click', e => { if (e.target.id === id) document.getElementById(id).classList.remove('active'); });
-  });
-
-  document.addEventListener('click', e => {
-    if (!document.getElementById('userContainer')?.contains(e.target) && !document.getElementById('userPopup')?.contains(e.target)) closeUserPopup();
-  });
-
-  document.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.auth-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
-      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected','true');
-      document.getElementById(tab.dataset.tab + 'Form')?.classList.add('active');
-    });
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      ['authModal','settingsModal','paymentModal','searchModal','invoiceModal'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-      document.getElementById('cartSidebar')?.classList.remove('active');
-      closeUserPopup();
-    }
-  });
-
-  document.getElementById('userPopup')?.addEventListener('mouseleave', () => {
-    setTimeout(() => { if (!document.getElementById('userPopup')?.matches(':hover')) closeUserPopup(); }, 150);
-  });
-
-  if (typeof firebase !== 'undefined') {
-    initFirebase();
-    loadProducts();
-  } else {
-    window.addEventListener('load', () => { initFirebase(); loadProducts(); });
-    setTimeout(() => {
-      if (typeof firebase === 'undefined') {
-        loadProducts();
-        updateUserContainer();
-      }
-    }, 3000);
-  }
 }
 
+// Override sendWhatsapp to trigger invoice after order
+window.sendWhatsapp = function() {
+  const name = document.getElementById('payName')?.value?.trim(),
+        email = document.getElementById('payEmail')?.value?.trim(),
+        phone = document.getElementById('payPhone')?.value?.trim(),
+        addr = document.getElementById('payAddress')?.value?.trim();
+  if (!name || !email || !phone || !addr) { toast(t('fill_all'), 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast(currentLang==='ar'?'البريد الإلكتروني غير صحيح':'Invalid email', 'error'); return; }
+
+  const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+  let msg = '🛍️ *طلب جديد من SmartTech Store*%0A%0A';
+  msg += `👤 *العميل:* ${encodeURIComponent(name)}%0A`;
+  msg += `📧 *البريد:* ${encodeURIComponent(email)}%0A`;
+  msg += `📱 *الجوال:* ${encodeURIComponent(phone)}%0A`;
+  msg += `📍 *العنوان:* ${encodeURIComponent(addr)}%0A%0A📦 *المنتجات:*%0A`;
+  cart.forEach(i => { msg += `- ${encodeURIComponent(i.name)} (${i.quantity} × ${i.price} AED) = ${i.price * i.quantity} AED%0A`; });
+  msg += `%0A💰 *الإجمالي:* ${total} AED%0A%0A✅ الرجاء التواصل لتأكيد الطلب`;
+
+  const orderId = generateUniqueOrderId();
+  const od = {
+    orderId,
+    customer: { fullName: name, email, phone, address: addr },
+    order: JSON.parse(JSON.stringify(cart)),
+    total, date: new Date().toISOString(), status: 'pending'
+  };
+  saveOrder({ ...od, orderId: undefined }).then(() => {
+    window.open('https://wa.me/971563433056?text=' + msg, '_blank', 'noopener,noreferrer');
+    const orderForInvoice = { ...od };
+    cart = [];
+    drawCart();
+    document.getElementById('paymentModal').classList.remove('active');
+    ['payName','payEmail','payPhone','payAddress'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    toast(t('order_sent'));
+    setTimeout(() => generateInvoice(orderForInvoice), 600);
+  });
+};
+
+// Start
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
 }
 
+// Screen reader helper class
 const style = document.createElement('style');
 style.textContent = '.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}';
 document.head.appendChild(style);
