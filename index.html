@@ -3,8 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="SmartTech Store - أفضل متجر إلكترونيات في الإمارات">
+<meta name="description" content="SmartTech Store - أفضل متجر إلكترونيات في الإمارات. تسوق أحدث الهواتف والأجهزة والإكسسوارات بأفضل الأسعار في الإمارات.">
 <meta name="theme-color" content="#2563eb">
+<meta name="robots" content="index, follow">
+<meta name="author" content="SmartTech Store">
+<meta property="og:site_name" content="SmartTech Store">
+<meta property="og:type" content="website">
+<meta property="og:title" id="ogTitle" content="SmartTech Store — أفضل متجر إلكترونيات في الإمارات">
+<meta property="og:description" id="ogDesc" content="تسوق أحدث الهواتف والأجهزة والإكسسوارات بأفضل الأسعار في الإمارات.">
+<meta property="og:image" id="ogImage" content="https://smarttech-store.firebaseapp.com/og-cover.png">
+<meta property="og:url" id="ogUrl" content="https://smarttech-store.firebaseapp.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twTitle" content="SmartTech Store">
+<meta name="twitter:description" id="twDesc" content="أفضل متجر إلكترونيات في الإمارات">
 <title>SmartTech Store</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,6 +60,7 @@ body.dark-mode {
 
 /* ========== RESET & BASE ========== */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { max-width:100%; overflow-x:hidden; }
 body { font-family:var(--font); background:var(--clr-bg); color:var(--clr-text); line-height:1.6; transition:background var(--transition),color var(--transition); }
 img { max-width:100%; height:auto; }
 button, a { font-family:var(--font); }
@@ -377,7 +389,7 @@ body.dark-mode .stock-badge.out { background:#7f1d1d44; color:#fca5a5; }
 .list-view { display:flex; flex-direction:column; gap:.9rem; }
 .list-card { background:var(--clr-card); border-radius:var(--radius-md); overflow:hidden; box-shadow:0 2px 10px var(--clr-shadow); display:flex; gap:1rem; padding:.9rem; cursor:pointer; transition:transform .2s; border:1px solid var(--clr-border); }
 .list-card:hover { transform:translateX(-3px); box-shadow:0 6px 20px var(--clr-shadow); }
-.list-card-img { width:100px; height:100px; object-fit:contain; border-radius:var(--radius-sm); flex-shrink:0; background:var(--clr-bg); padding:4px; }
+.list-card-img { width:100px; height:100px; object-fit:contain; border-radius:var(--radius-sm); flex-shrink:0; background:var(--clr-bg); padding:4px; min-width:80px; }
 .list-card-info { flex:1; display:flex; flex-direction:column; justify-content:space-between; min-width:0; }
 .list-card-info h3 { font-size:.95rem; margin-bottom:.2rem; }
 .list-card-desc { font-size:.78rem; color:var(--clr-text-muted); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -542,8 +554,19 @@ body.lang-en .address-card:hover { transform:translateX(3px); }
 body.lang-en .back-btn i { transform:scaleX(-1); }
 body.lang-en .settings-item:hover { transform:translateX(3px); }
 body.lang-en .toast-container { right:auto; left:20px; }
+/* EN mobile overrides */
+@media(max-width:768px) {
+  body.lang-en .modal-overlay { align-items:flex-end; }
+  body.lang-en .smart-search-box { border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+  body.lang-en .remove-item { right:8px; left:auto; }
+}
 
 /* ========== RESPONSIVE ========== */
+
+/* ── Global safe defaults ─────────────────────── */
+img, video, iframe, table { max-width:100%; }
+
+/* ── Tablet ≤900px ────────────────────────────── */
 @media(max-width:900px) {
   .filters-sidebar { display:none; position:static; width:100%; }
   .filters-sidebar.mob-open { display:block; }
@@ -551,53 +574,228 @@ body.lang-en .toast-container { right:auto; left:20px; }
   .products-layout { flex-direction:column; }
   .reviews-section { grid-column:1; }
   .product-layout { grid-template-columns:1fr; }
+  .recs-grid { grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
 }
+
+/* ── Mobile ≤768px ────────────────────────────── */
 @media(max-width:768px) {
+
+  /* === CORE FIX: prevent any element from escaping viewport === */
+  *, *::before, *::after { box-sizing:border-box; }
+  .home-products, .products-page-wrap, .page-container,
+  .account-page, .wishlist-page-wrap, .about-page, .terms-page,
+  .for-you-section, .product-page, .order-card, .address-card { 
+    max-width:100% !important; 
+    padding-left:1rem !important; 
+    padding-right:1rem !important;
+  }
+
+  /* === HEADER / NAV === */
+  nav { padding:0 .75rem; gap:.4rem; flex-wrap:nowrap; }
   .nav-links { display:none; }
-  .hero-content h1 { font-size:1.9rem; }
-  .cart-sidebar { width:100%; left:-100%; }
-  .admin-form textarea { grid-column:span 1; }
-  .nav-icons { gap:.5rem; }
-  .products-topbar { flex-direction:column; align-items:flex-start; }
-  .pd-actions { flex-direction:column; }
-  .modal-overlay { padding:.5rem; }
-  nav { padding:0 1rem; }
-  .recs-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
-}
-@media(max-width:400px) {
-  .section-title { font-size:1.4rem; }
+  .nav-icons { gap:.25rem; flex-shrink:0; }
+  .nav-icon-btn { width:34px; height:34px; font-size:1rem; flex-shrink:0; }
+  .badge { font-size:.55rem; padding:1px 4px; min-width:14px; top:1px; right:1px; }
+  .logo { font-size:1.1rem; flex-shrink:0; }
+  .logo i { font-size:1.5rem; }
+  /* Compact lang switch */
+  .lang-switch { display:flex; gap:2px; flex-shrink:0; }
+  .lang-btn { padding:3px 6px; font-size:.68rem; border-radius:14px; }
+
+  /* === HERO === */
+  .hero { padding:2.5rem 1rem; }
   .hero-content h1 { font-size:1.6rem; }
+  .hero-content p { font-size:.9rem; margin-bottom:1.5rem; }
+  .btn-hero { padding:.7rem 1.4rem; font-size:.88rem; }
+
+  /* === HOME PRODUCTS === */
+  .home-products { margin:2rem auto; padding:0 .75rem; }
+  .section-title { font-size:1.3rem; margin-bottom:1.5rem; }
+  .products-grid { grid-template-columns:repeat(2,1fr); gap:.75rem; }
+
+  /* === FOR YOU STRIP === */
+  .for-you-section { margin:0 auto 2rem; padding:0 .75rem; }
+  .for-you-section h2 { font-size:1rem; }
+  .for-you-strip { gap:.6rem; }
+  .fy-card { min-width:130px; }
+  .fy-card-img { height:90px; }
+  .fy-card-name { font-size:.72rem; }
+  .fy-card-price { font-size:.78rem; }
+
+  /* === PRODUCT CARDS === */
+  .product-image { height:155px; }
+  .product-info h3 { font-size:.84rem; }
+  .product-price { font-size:1.05rem; }
+  .card-add-btn { font-size:.8rem; padding:.55rem; }
+  .product-card { display:flex; flex-direction:column; }
+
+  /* === PRODUCTS PAGE === */
+  .products-page-wrap { padding:0 .75rem; margin:1rem auto; }
+  .products-topbar { 
+    flex-direction:column; align-items:stretch; 
+    padding:.75rem; gap:.5rem; margin-bottom:.75rem; 
+  }
+  .topbar-left { flex-wrap:wrap; gap:.5rem; }
+  .sort-select { width:100%; min-width:0; }
+  .grid-view { grid-template-columns:repeat(2,1fr); gap:.7rem; }
+
+  /* === LIST VIEW === */
+  .list-card { flex-direction:column; padding:.75rem; }
+  .list-card-img { width:100%; height:140px; border-radius:var(--radius-sm) var(--radius-sm) 0 0; }
+  .list-card:hover { transform:none; }
+
+  /* === CART SIDEBAR === */
+  .cart-sidebar { width:100%; left:-100%; }
+  .cart-sidebar.active { left:0; }
+
+  /* === PRODUCT DETAIL === */
+  .product-page { margin:.75rem; padding:1rem; border-radius:var(--radius-lg); }
+  .pd-header h1 { font-size:1.15rem; }
+  .pd-price { font-size:1.5rem; }
+  .pd-actions { flex-direction:column; gap:.6rem; }
+  .pd-btn-buy, .pd-btn-cart { padding:.85rem; width:100%; }
+
+  /* === RECOMMENDATIONS === */
+  .recs-grid { grid-template-columns:repeat(2,1fr); gap:.7rem; }
+  .rec-card-img { height:100px; }
+  .rec-card-name { font-size:.75rem; }
+  .recs-tabs { gap:.3rem; flex-wrap:wrap; }
+  .rec-tab { padding:.35rem .65rem; font-size:.74rem; }
+
+  /* === MODALS: slide up from bottom === */
+  .modal-overlay { 
+    padding:0; 
+    align-items:flex-end; 
+    background:rgba(0,0,0,.6); 
+  }
+  .modal-box { 
+    width:100% !important; 
+    max-width:100% !important; 
+    border-radius:var(--radius-xl) var(--radius-xl) 0 0; 
+    max-height:92vh;
+    overflow-y:auto;
+  }
+  .auth-modal-box { padding:1.5rem 1.2rem 2rem; }
+  .settings-modal-box { padding:1.2rem 1rem 2rem; }
+  .payment-modal-box { 
+    padding:1.2rem 1rem 2rem; 
+    max-height:92vh; 
+    border-radius:var(--radius-xl) var(--radius-xl) 0 0; 
+  }
+  .invoice-modal-box { 
+    max-height:92vh; 
+    border-radius:var(--radius-xl) var(--radius-xl) 0 0; 
+  }
+  .invoice-body { padding:1rem; max-height:calc(92vh - 60px); }
+  .modal-close { top:.75rem; }
+
+  /* === SMART SEARCH === */
+  .smart-search-wrap { 
+    padding-top:0; 
+    align-items:flex-start; 
+    backdrop-filter:blur(4px); 
+  }
+  .smart-search-box { 
+    width:100%; 
+    max-width:100%; 
+    border-radius:0; 
+    margin-top:0; 
+  }
+  .smart-search-body { max-height:55vh; }
+
+  /* === ACCOUNT PAGES === */
+  .page-container { margin:.75rem; padding:1.2rem 1rem; }
+  .account-profile-header { padding:1rem; gap:.85rem; border-radius:var(--radius-md); }
+  .account-avatar-big { width:54px; height:54px; font-size:1.3rem; }
+  .account-section-card { padding:1rem; }
+
+  /* === FORMS === */
+  .form-group input, .form-group textarea, .form-group select,
+  .auth-input, .review-name-input, .inline-form input {
+    font-size:16px !important; /* prevents iOS auto-zoom */
+    min-height:44px;
+    padding:.65rem .8rem;
+  }
+  .review-textarea { font-size:16px !important; min-height:80px; }
+
+  /* === TOUCH TARGETS === */
+  button, .btn { touch-action:manipulation; }
+  * { -webkit-tap-highlight-color:transparent; }
+  .card-add-btn { min-height:42px; }
+  .checkout-btn { min-height:48px; }
+  .pay-btn { min-height:48px; }
+  .star-picker i { font-size:2rem; padding:.15rem; }
+  .settings-item { min-height:46px; }
+  .settings-item:hover { transform:none; }
+
+  /* === FOOTER === */
+  footer { padding:1.5rem .75rem 1rem; margin-top:2rem; }
+  .footer-content { gap:1.2rem; }
+
+  /* === SCROLL === */
+  .cart-items, .smart-search-body, .invoice-body, .payment-modal-box {
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+
+  /* === TOAST === */
+  .toast-container { right:.75rem; left:.75rem; bottom:16px; }
+  .toast { max-width:100%; }
+
+  /* === ADMIN FORM === */
+  .admin-form textarea { grid-column:span 1; }
+  .admin-form { grid-template-columns:1fr; }
+
+  /* === OVERFLOW GUARDS === */
+  .invoice-meta { grid-template-columns:1fr; }
+  .invoice-table { font-size:.75rem; }
+  .invoice-table th, .invoice-table td { padding:.4rem .5rem; }
+  .invoice-header-band { flex-direction:column; gap:.5rem; text-align:center; }
+  .invoice-num { text-align:center; }
+  .review-summary { flex-direction:column; gap:1rem; }
+  .pd-specs { overflow-x:auto; }
+  .spec-row { flex-wrap:wrap; gap:.3rem; }
+  .rbar-label { width:30px; font-size:.72rem; }
+  .user-popup { width:calc(100vw - 20px) !important; left:10px !important; }
 }
 
-/* ORDER TRACKING TIMELINE */
-.tracking-timeline { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--clr-border); }
-.tracking-title { font-size: .82rem; font-weight: 700; color: var(--clr-text-muted); margin-bottom: .8rem; display: flex; align-items: center; gap: .4rem; text-transform: uppercase; letter-spacing: .4px; }
-.track-steps { position: relative; }
-.track-step-client { display: flex; gap: .8rem; margin-bottom: .7rem; position: relative; }
-.track-step-client:not(:last-child)::after { content: ''; position: absolute; right: 11px; top: 26px; width: 2px; height: calc(100% - 6px); background: var(--clr-border); }
-.track-dot-client { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: .62rem; margin-top: 1px; z-index: 1; border: 2px solid; }
-.track-dot-client.pending { background: #f59e0b22; border-color: #f59e0b; color: #f59e0b; }
-.track-dot-client.processing { background: #3b82f622; border-color: #3b82f6; color: #3b82f6; }
-.track-dot-client.shipped { background: #8b5cf622; border-color: #8b5cf6; color: #8b5cf6; }
-.track-dot-client.out_for_delivery { background: #06b6d422; border-color: #06b6d4; color: #06b6d4; }
-.track-dot-client.delivered { background: #10b98122; border-color: #10b981; color: #10b981; }
-.track-dot-client.cancelled { background: #ef444422; border-color: #ef4444; color: #ef4444; }
-.track-info-client { flex: 1; }
-.track-label-client { font-size: .85rem; font-weight: 700; color: var(--clr-text); }
-.track-desc-client { font-size: .78rem; color: var(--clr-text-muted); margin-top: .1rem; }
-.track-meta-client { font-size: .72rem; color: var(--clr-text-muted); margin-top: .2rem; display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
-.track-num-badge { background: var(--clr-primary-light, #eff6ff); color: var(--clr-primary); padding: .1rem .55rem; border-radius: 6px; font-size: .7rem; font-weight: 700; font-family: monospace; direction: ltr; display: inline-block; }
-.order-status-bar { display: flex; gap: 0; margin-bottom: 1rem; overflow-x: auto; padding-bottom: .3rem; }
-.status-step { flex: 1; min-width: 70px; text-align: center; position: relative; }
-.status-step::after { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--clr-border); z-index: 0; }
-.status-step:last-child::after { display: none; }
-.status-icon { width: 26px; height: 26px; border-radius: 50%; background: var(--clr-bg); border: 2px solid var(--clr-border); display: flex; align-items: center; justify-content: center; font-size: .6rem; margin: 0 auto .3rem; position: relative; z-index: 1; color: var(--clr-text-muted); transition: all .3s; }
-.status-icon.done { background: var(--clr-primary); border-color: var(--clr-primary); color: #fff; }
-.status-icon.active { background: #f59e0b; border-color: #f59e0b; color: #fff; }
-.status-icon.cancelled-step { background: #ef4444; border-color: #ef4444; color: #fff; }
-.status-label { font-size: .65rem; color: var(--clr-text-muted); line-height: 1.2; }
-.status-label.done, .status-label.active { color: var(--clr-text); font-weight: 600; }
+/* ── Small mobile ≤480px ──────────────────────── */
+@media(max-width:480px) {
+  .products-grid { grid-template-columns:repeat(2,1fr); gap:.6rem; }
+  .grid-view { grid-template-columns:repeat(2,1fr); gap:.6rem; }
+  .product-image { height:130px; }
+  .product-info h3 { font-size:.8rem; }
+  .product-price { font-size:.95rem; }
+  .card-add-btn { font-size:.75rem; padding:.48rem; }
 
+  .for-you-strip { gap:.5rem; }
+  .fy-card { min-width:115px; }
+  .fy-card-img { height:80px; }
+
+  .recs-grid { grid-template-columns:repeat(2,1fr); gap:.5rem; }
+
+  .hero-content h1 { font-size:1.35rem; }
+  .hero { padding:2rem .75rem; }
+  .btn-hero { font-size:.82rem; padding:.6rem 1.2rem; }
+  .section-title { font-size:1.15rem; }
+
+  /* Login wrap: icon only */
+  .login-icon-wrap span { display:none; }
+  .login-icon-wrap { padding:6px 9px; }
+  .nav-icon-btn { width:32px; height:32px; }
+}
+
+/* ── Very small ≤360px ────────────────────────── */
+@media(max-width:360px) {
+  .products-grid { grid-template-columns:repeat(2,1fr); gap:.5rem; }
+  .grid-view { grid-template-columns:repeat(2,1fr); gap:.5rem; }
+  .product-image { height:115px; }
+  nav { padding:0 .4rem; gap:.2rem; }
+  .logo span { display:none; }
+  .hero-content h1 { font-size:1.2rem; }
+  .nav-icon-btn { width:30px; height:30px; font-size:.9rem; }
+  .lang-btn { padding:2px 5px; font-size:.62rem; }
+}
 </style>
 </head>
 <body>
@@ -790,14 +988,14 @@ body.lang-en .toast-container { right:auto; left:20px; }
     </div>
     <div class="footer-section">
       <h4 data-key="contact_us">تواصل معنا</h4>
-      <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection#6f021d07020e59585d5d2f08020e0603410c0002"><span class="__cf_email__" data-cfemail="90fde2f8fdf1a6a7a2a2d0f7fdf1f9fcbef3fffd">[email&#160;protected]</span></a></p>
+      <p><i class="fas fa-envelope"></i> <a href="mailto:mrhma6722@gmail.com">mrhma6722@gmail.com</a></p>
       <p><i class="fas fa-phone"></i> +971 56 343 3056</p>
     </div>
   </div>
   <div class="footer-bottom"><p>&copy; 2026 SmartTech Store — <span data-key="all_rights">جميع الحقوق محفوظة</span></p></div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 'use strict';
 
 // ==========================================
@@ -950,6 +1148,38 @@ function setLanguage(lang) {
 }
 window.setLanguage = setLanguage;
 
+// ==========================================
+// SEO: Dynamic meta tags per page
+// ==========================================
+function updateSEO({ title, description, image, url } = {}) {
+  const base = 'SmartTech Store';
+  const finalTitle = title ? `${title} — ${base}` : base + ' — أفضل متجر إلكترونيات في الإمارات';
+  const finalDesc = description || (currentLang === 'ar'
+    ? 'تسوق أحدث الهواتف والأجهزة والإكسسوارات بأفضل الأسعار في الإمارات.'
+    : 'Shop the latest phones, gadgets and accessories at the best prices in UAE.');
+  const finalImg = image || 'https://smarttech-store.firebaseapp.com/og-cover.png';
+  const finalUrl = url || window.location.href;
+
+  // Update title
+  document.title = finalTitle;
+
+  // Update meta tags safely
+  function setMeta(id, content) {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('content', content);
+  }
+  setMeta('ogTitle', finalTitle);
+  setMeta('ogDesc', finalDesc);
+  setMeta('ogImage', finalImg);
+  setMeta('ogUrl', finalUrl);
+  setMeta('twTitle', finalTitle);
+  setMeta('twDesc', finalDesc);
+
+  // Update description meta (no id, use querySelector)
+  const descMeta = document.querySelector('meta[name="description"]');
+  if (descMeta) descMeta.setAttribute('content', finalDesc);
+}
+
 function updatePageTexts() {
   document.querySelectorAll('[data-key]').forEach(el => {
     const key = el.dataset.key, val = t(key);
@@ -1031,17 +1261,41 @@ function loadLanguage() { try { const s = localStorage.getItem('language'); if (
 function navigateTo(path) { window.location.hash = path; }
 function getHash() { return window.location.hash.replace('#', '') || '/'; }
 function renderRoute(path) {
-  if (path !== '/orders') cleanupOrdersListener();
-  if (!path || path === '/') renderHome();
-  else if (path === '/products') renderProducts();
-  else if (path.startsWith('/product/')) renderDetail(parseInt(path.split('/')[2]));
-  else if (path === '/account') renderAccount();
-  else if (path === '/orders') renderOrders();
-  else if (path === '/addresses') renderAddresses();
-  else if (path === '/wishlist') renderWishlist();
-  else if (path === '/about') renderAbout();
-  else if (path === '/terms') renderTerms();
-  else renderHome();
+  const isAr = currentLang === 'ar';
+  if (!path || path === '/') {
+    renderHome();
+    updateSEO({ title: isAr ? 'الرئيسية' : 'Home',
+      description: isAr ? 'أفضل متجر إلكترونيات في الإمارات — تسوق الآن' : 'Best electronics store in UAE — Shop Now' });
+  } else if (path === '/products') {
+    renderProducts();
+    updateSEO({ title: isAr ? 'جميع المنتجات' : 'All Products',
+      description: isAr ? 'تصفح أحدث الإلكترونيات بأفضل الأسعار' : 'Browse all electronics at best prices' });
+  } else if (path.startsWith('/product/')) {
+    renderDetail(parseInt(path.split('/')[2]));
+    // SEO is set inside renderDetail after product loads
+  } else if (path === '/account') {
+    renderAccount();
+    updateSEO({ title: isAr ? 'حسابي' : 'My Account' });
+  } else if (path === '/orders') {
+    renderOrders();
+    updateSEO({ title: isAr ? 'طلباتي' : 'My Orders' });
+  } else if (path === '/addresses') {
+    renderAddresses();
+    updateSEO({ title: isAr ? 'عناوين التوصيل' : 'Addresses' });
+  } else if (path === '/wishlist') {
+    renderWishlist();
+    updateSEO({ title: isAr ? 'المفضلة' : 'Wishlist' });
+  } else if (path === '/about') {
+    renderAbout();
+    updateSEO({ title: isAr ? 'من نحن' : 'About Us',
+      description: isAr ? 'تعرف على SmartTech Store — وسيطك الموثوق للإلكترونيات' : 'Learn about SmartTech Store — your trusted electronics partner' });
+  } else if (path === '/terms') {
+    renderTerms();
+    updateSEO({ title: isAr ? 'الشروط والأحكام' : 'Terms & Conditions' });
+  } else {
+    renderHome();
+    updateSEO({});
+  }
   updatePageTexts();
   const main = document.getElementById('app'); if (main) main.focus();
 }
@@ -1132,7 +1386,7 @@ function loadProducts() {
   db.ref('products').on('value', s => {
     const d = s.val(); products = d ? Object.values(d).sort((a, b) => a.id - b.id) : [];
     dpProducts(); if (getHash() === '/products') refreshGrid();
-    if (getHash() === '/' || getHash() === '') renderForYouSection();
+    renderForYouSection();
   }, err => { console.warn('Products error:', err); dpProducts(); if (getHash() === '/products') refreshGrid(); });
 }
 function dpProducts() {
@@ -1156,16 +1410,15 @@ function pcHTML(p) {
   const stockNum = p.stock !== undefined ? parseInt(p.stock) : 99;
   const isWished = wishlist.includes(p.id);
   const tb = (p.tags || []).slice(0, 2).map(tag => `<span class="tag-badge">${tagLabel(tag)}</span>`).join('');
-  const displayName = currentLang === 'en' && p.nameEn ? p.nameEn : p.name;
   return `<article class="product-card" role="listitem">
     <div class="product-image" onclick="navigateTo('/product/${p.id}')">
-      <img src="${sanitizeURL(p.image)}" alt="${escapeHTML(displayName)}" loading="lazy" onerror="this.src='https://placehold.co/400x300/eee/999?text=?'">
+      <img src="${sanitizeURL(p.image)}" alt="${escapeHTML(p.name)}" loading="lazy" onerror="this.src='https://placehold.co/400x300/eee/999?text=?'">
     </div>
     <button class="wishlist-btn ${isWished ? 'active' : ''}" data-id="${p.id}" onclick="event.stopPropagation();toggleWish(${p.id})" aria-label="${isWished ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}" aria-pressed="${isWished}">
       <i class="fas fa-heart"></i>
     </button>
     <div class="product-info" onclick="navigateTo('/product/${p.id}')">
-      <h3>${escapeHTML(displayName)}</h3>
+      <h3>${escapeHTML(p.name)}</h3>
       ${rating > 0 ? `<div class="card-stars"><div class="stars-row">${starsHTML(rating)}</div><span class="card-rating-count">(${rcount})</span></div>` : ''}
       <div class="product-price">${p.price.toLocaleString()} AED</div>
       ${getStockBadge(stockNum)}
@@ -1465,7 +1718,7 @@ function renderHome() {
       <div class="products-grid" id="productsGrid" role="list"></div>
     </section>`;
   dpProducts();
-  setTimeout(() => { if (getHash() === '/' || getHash() === '') renderForYouSection(); }, 50);
+  setTimeout(renderForYouSection, 50);
   updatePageTexts();
 }
 
@@ -1528,6 +1781,13 @@ function renderProducts() {
 // ==========================================
 function renderDetail(pid) {
   const p = products.find(x => x.id === pid); if (!p) { renderHome(); return; }
+  // SEO for product page
+  updateSEO({
+    title: p.name,
+    description: p.description ? p.description.substring(0, 155) : `${p.name} — ${p.price.toLocaleString()} AED`,
+    image: sanitizeURL(p.image),
+    url: window.location.href
+  });
   trackView(pid);
   const isW = wishlist.includes(p.id), rating = p.rating||0, rcount = p.reviewCount||0;
   const stockNum = p.stock !== undefined ? parseInt(p.stock) : 99;
@@ -1625,50 +1885,19 @@ function buildReviewForm(pid) {
     <button class="submit-review-btn" onclick="submitReview(${pid})"><i class="fas fa-paper-plane"></i> ${t('submit_review')}</button>`;
 }
 
-const ADMIN_EMAIL = 'mrhma6722@gmail.com';
-
 window.submitReview = function(pid) {
-  if (!currentUser) {
-    toast(t('login_required'), 'error');
-    document.getElementById('authModal').classList.add('active');
-    return;
-  }
+  if (!currentUser) { toast(t('login_required'), 'error'); document.getElementById('authModal').classList.add('active'); return; }
   const stars = window.getCurrentStars ? window.getCurrentStars() : 0;
-  const text = (document.getElementById('rText')?.value || '').trim();
-  const name = (document.getElementById('rName')?.value || '').trim() || 'مجهول';
+  const text = document.getElementById('rText')?.value?.trim() || '';
+  const name = document.getElementById('rName')?.value?.trim() || 'مجهول';
   if (!stars) { toast(t('rate_product'), 'error'); return; }
   if (!text) { toast(t('write_comment'), 'error'); return; }
-  if (!db) { toast('خطأ في الاتصال', 'error'); return; }
-
-  const review = {
-    stars,
-    text: escapeHTML(text),
-    author: escapeHTML(name),
-    userId: currentUser.uid,
-    userEmail: currentUser.email || '',
-    userName: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : ''),
-    date: new Date().toISOString()
-  };
-
-  const reviewRef = db.ref('products/' + pid + '/reviews').push();
-  reviewRef.set(review)
+  if (!db) return;
+  const review = { stars, text, author: name, userId: currentUser.uid, userEmail: currentUser.email||'', date: new Date().toISOString() };
+  db.ref('products/' + pid + '/reviews').push().set(review)
     .then(() => db.ref('products/' + pid + '/reviews').once('value'))
-    .then(snap => {
-      const all = snap.exists() ? Object.values(snap.val()) : [];
-      const avg = all.length ? all.reduce((s, r) => s + (r.stars || 0), 0) / all.length : 0;
-      return db.ref('products/' + pid).update({
-        rating: Math.round(avg * 10) / 10,
-        reviewCount: all.length
-      });
-    })
-    .then(() => {
-      toast(t('review_submitted'));
-      renderDetail(pid);
-    })
-    .catch(err => {
-      console.error('Review error:', err);
-      toast(currentLang === 'ar' ? 'حدث خطأ أثناء إرسال التقييم' : 'Error submitting review', 'error');
-    });
+    .then(snap => { const all = snap.exists() ? Object.values(snap.val()) : []; const avg = all.length ? all.reduce((s,r) => s+(r.stars||0),0)/all.length : 0; return db.ref('products/' + pid).update({rating:Math.round(avg*10)/10, reviewCount:all.length}); })
+    .then(() => { toast(t('review_submitted')); renderDetail(pid); });
 };
 
 // ==========================================
@@ -1724,68 +1953,6 @@ window.togLink = function(pid, cls) { const lk=currentUser.providerData.map(p=>p
 // RENDER: ORDERS
 // ==========================================
 function showOrdersPage() { if (!reqLogin()) return; closeSet(); navigateTo('/orders'); }
-
-// ══════════════════════════════════════════
-// ORDER TRACKING DISPLAY
-// ══════════════════════════════════════════
-const CLIENT_TRACK_STATUSES = {
-  pending:          { ar:'تم استلام الطلب',    en:'Order Received',     icon:'fa-clock',         cls:'pending' },
-  processing:       { ar:'جاري التجهيز',       en:'Processing',         icon:'fa-box-open',      cls:'processing' },
-  shipped:          { ar:'تم الشحن',           en:'Shipped',            icon:'fa-shipping-fast', cls:'shipped' },
-  out_for_delivery: { ar:'خارج للتوصيل',       en:'Out for Delivery',   icon:'fa-motorcycle',    cls:'out_for_delivery' },
-  delivered:        { ar:'تم التسليم',          en:'Delivered',          icon:'fa-check-circle',  cls:'delivered' },
-  cancelled:        { ar:'ملغي',               en:'Cancelled',          icon:'fa-times-circle',  cls:'cancelled' }
-};
-
-const STATUS_FLOW = ['pending','processing','shipped','out_for_delivery','delivered'];
-
-function buildOrderStatusBar(currentStatus) {
-  if (currentStatus === 'cancelled') {
-    return '<div style="text-align:center;padding:.5rem;color:#ef4444;font-size:.85rem;font-weight:700"><i class="fas fa-times-circle"></i> ' + (currentLang==='ar'?'تم إلغاء الطلب':'Order Cancelled') + '</div>';
-  }
-  const curIdx = STATUS_FLOW.indexOf(currentStatus);
-  return '<div class="order-status-bar">' + STATUS_FLOW.map((s, i) => {
-    const info = CLIENT_TRACK_STATUSES[s];
-    const isDone = i < curIdx;
-    const isActive = i === curIdx;
-    const iconCls = isDone ? 'done' : isActive ? 'active' : '';
-    const labelCls = (isDone || isActive) ? 'done' : '';
-    return '<div class="status-step">' +
-      '<div class="status-icon ' + iconCls + '"><i class="fas ' + info.icon + '"></i></div>' +
-      '<div class="status-label ' + labelCls + '">' + (currentLang==='ar' ? info.ar : info.en) + '</div>' +
-    '</div>';
-  }).join('') + '</div>';
-}
-
-function buildTrackingTimeline(tracking) {
-  if (!tracking) return '';
-  const steps = Object.values(tracking).sort((a,b) => new Date(a.date) - new Date(b.date));
-  if (!steps.length) return '';
-  const isAr = currentLang === 'ar';
-  const stepsHtml = steps.map(s => {
-    const info = CLIENT_TRACK_STATUSES[s.status] || { ar: s.status, en: s.status, icon:'fa-circle', cls:'pending' };
-    const label = isAr ? info.ar : info.en;
-    const dateStr = s.date ? new Date(s.date).toLocaleString(isAr?'ar-AE':'en-AE', {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
-    return '<div class="track-step-client">' +
-      '<div class="track-dot-client ' + info.cls + '"><i class="fas ' + info.icon + '"></i></div>' +
-      '<div class="track-info-client">' +
-        '<div class="track-label-client">' + label + '</div>' +
-        (s.description ? '<div class="track-desc-client">' + escapeHTML(s.description) + '</div>' : '') +
-        '<div class="track-meta-client">' +
-          '<span>' + dateStr + '</span>' +
-          (s.trackingNumber ? '<span class="track-num-badge">📦 ' + escapeHTML(s.trackingNumber) + '</span>' : '') +
-          (s.carrier ? '<span>· ' + escapeHTML(s.carrier) + '</span>' : '') +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-
-  return '<div class="tracking-timeline">' +
-    '<div class="tracking-title"><i class="fas fa-route"></i> ' + (isAr?'تفاصيل التتبع':'Tracking Details') + '</div>' +
-    '<div class="track-steps">' + stepsHtml + '</div>' +
-  '</div>';
-}
-
 function renderOrders() {
   document.getElementById('app').innerHTML = `
     <div class="page-container">
@@ -1798,7 +1965,13 @@ function renderOrders() {
     const el = document.getElementById('ordersList');
     if (!el) return;
 
-    const validOrders = (orders || []).filter(o => o && (o.customer || o.total || o.order || o.orderId));
+    if (!orders.length) {
+      el.innerHTML = `<p style="text-align:center;color:var(--clr-text-muted)">${t('no_orders')}</p>`;
+      return;
+    }
+
+    // Filter: only orders with actual data
+    const validOrders = orders.filter(o => o && (o.customer || o.total || o.order || o.orderId));
     const allOrders = [...validOrders].reverse();
 
     if (!allOrders.length) {
@@ -1809,87 +1982,36 @@ function renderOrders() {
     el.innerHTML = allOrders.map(o => {
       const isAr = currentLang === 'ar';
       const dateStr = o.date ? new Date(o.date).toLocaleDateString(isAr ? 'ar-AE' : 'en-AE', {year:'numeric',month:'long',day:'numeric'}) : '—';
-      const statusInfo = CLIENT_TRACK_STATUSES[o.status] || CLIENT_TRACK_STATUSES.pending;
-      const statusColor = {delivered:'#10b981',cancelled:'#ef4444',shipped:'#8b5cf6',out_for_delivery:'#06b6d4',processing:'#3b82f6'}[o.status] || '#f59e0b';
-      const statusText = isAr ? statusInfo.ar : statusInfo.en;
-      const orderId = escapeHTML(o.orderId || '—');
+      const address = escapeHTML(o.customer?.address || o.address || '—');
+      const customerName = escapeHTML(o.customer?.fullName || o.fullName || '—');
+      const products = (o.order || []).map(p => escapeHTML(p.name) + ' ×' + p.quantity).join(', ') || '—';
       const totalAmount = (o.total || 0).toLocaleString();
-      const itemsList = (o.order || []).map(p => `
-        <div style="display:flex;align-items:center;gap:.7rem;padding:.45rem 0;border-bottom:1px solid var(--clr-border)">
-          ${p.image ? `<img src="${sanitizeURL(p.image)}" style="width:36px;height:36px;object-fit:contain;border-radius:6px;background:var(--clr-bg);padding:2px" onerror="this.style.display='none'">` : ''}
-          <span style="flex:1;font-size:.86rem">${escapeHTML(p.name)}</span>
-          <span style="color:var(--clr-text-muted);font-size:.82rem">× ${p.quantity}</span>
-          <span style="color:var(--clr-primary);font-weight:700;font-size:.86rem">${(p.price*p.quantity).toLocaleString()} AED</span>
-        </div>`).join('') || '<p style="color:var(--clr-text-muted);font-size:.83rem">—</p>';
+      const statusColor = o.status === 'delivered' ? '#10b981' : o.status === 'cancelled' ? '#ef4444' : '#f59e0b';
+      const statusText = o.status === 'delivered' ? t('delivered') : o.status === 'cancelled' ? t('cancelled') : t('pending');
+      const orderId = escapeHTML(o.orderId || '—');
 
-      // Status bar
-      const statusBar = buildOrderStatusBar(o.status || 'pending');
-
-      // Tracking timeline
-      const trackingHtml = buildTrackingTimeline(o.tracking || null);
-
-      // Last tracking info
-      const trackingSteps = o.tracking ? Object.values(o.tracking).sort((a,b)=>new Date(b.date)-new Date(a.date)) : [];
-      const lastTrackNum = trackingSteps.find(s=>s.trackingNumber);
-      const lastCarrier = trackingSteps.find(s=>s.carrier);
-
-      // Store for invoice
+      // Store order data safely for invoice button
       const orderKey = 'inv_' + (o.orderId || Date.now());
       try { sessionStorage.setItem(orderKey, JSON.stringify(o)); } catch(e) {}
 
       return `<div class="order-card">
-        <!-- Header: رقم الطلب + الحالة -->
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem">
-          <div>
-            <div style="font-size:.72rem;color:var(--clr-text-muted);margin-bottom:.1rem"><i class="fas fa-hashtag"></i> ${isAr?'رقم الطلب':'Order ID'}</div>
-            <div style="font-weight:800;font-size:1rem;color:var(--clr-primary)">${orderId}</div>
-          </div>
-          <div style="text-align:${isAr?'left':'right'}">
-            <div style="font-size:.72rem;color:var(--clr-text-muted);margin-bottom:.2rem"><i class="fas fa-calendar-alt"></i> ${dateStr}</div>
-            <span style="font-size:.78rem;background:${statusColor}22;color:${statusColor};padding:4px 12px;border-radius:20px;font-weight:700;display:inline-flex;align-items:center;gap:.3rem">
-              <i class="fas ${statusInfo.icon}" style="font-size:.65rem"></i> ${statusText}
-            </span>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem">
+          <h4 style="margin:0"><i class="fas fa-hashtag" style="color:var(--clr-primary)"></i> ${orderId}</h4>
+          <span style="font-size:.75rem;background:${statusColor}22;color:${statusColor};padding:3px 10px;border-radius:20px;font-weight:700">
+            <i class="fas fa-circle" style="font-size:.5rem"></i> ${statusText}
+          </span>
         </div>
-
-        <!-- شريط التقدم -->
-        ${statusBar}
-
-        <!-- المنتجات -->
-        <div style="margin:.8rem 0;background:var(--clr-bg);border-radius:var(--radius-sm);padding:.6rem .8rem;border:1px solid var(--clr-border)">
-          <div style="font-size:.72rem;color:var(--clr-text-muted);margin-bottom:.4rem;font-weight:600"><i class="fas fa-box"></i> ${isAr?'المنتجات':'Items'}</div>
-          ${itemsList}
-          <div style="display:flex;justify-content:space-between;padding:.5rem 0 .1rem;font-weight:800;border-top:1px solid var(--clr-border);margin-top:.3rem">
-            <span style="font-size:.88rem">${isAr?'الإجمالي':'Total'}</span>
-            <span style="color:var(--clr-primary)">${totalAmount} AED</span>
-          </div>
-        </div>
-
-        <!-- بيانات التوصيل -->
-        <div style="font-size:.83rem;color:var(--clr-text-muted);margin-bottom:.5rem">
-          <i class="fas fa-map-marker-alt" style="color:var(--clr-primary);width:16px"></i>
-          ${escapeHTML(o.customer?.address || o.address || '—')}
-        </div>
-
-        <!-- رقم التتبع إن وجد -->
-        ${lastTrackNum ? `<div style="margin:.5rem 0;font-size:.8rem">
-          <i class="fas fa-barcode" style="color:var(--clr-primary);width:16px"></i>
-          <span class="track-num-badge">📦 ${escapeHTML(lastTrackNum.trackingNumber)}</span>
-          ${lastCarrier ? `<span style="color:var(--clr-text-muted)"> · ${escapeHTML(lastCarrier.carrier)}</span>` : ''}
-        </div>` : ''}
-
-        <!-- التايم لاين -->
-        ${trackingHtml}
-
-        <!-- الأزرار -->
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.9rem">
-          <button style="flex:1;padding:.55rem .8rem;background:var(--clr-primary-light);color:var(--clr-primary);border:1.5px solid var(--clr-primary);border-radius:var(--radius-sm);font-size:.82rem;font-weight:700;cursor:pointer"
-                  onclick="openOrderDetail('${o.orderId||''}')">
-            <i class="fas fa-route"></i> ${isAr?'تفاصيل التتبع':'Tracking Details'}
-          </button>
-          <button style="flex:1;padding:.55rem .8rem;background:var(--clr-primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:.82rem;font-weight:700;cursor:pointer"
+        <p><i class="fas fa-user" style="color:var(--clr-primary);width:16px"></i> ${customerName}</p>
+        <p><i class="fas fa-calendar" style="color:var(--clr-primary);width:16px"></i> ${dateStr}</p>
+        <p><i class="fas fa-map-marker-alt" style="color:var(--clr-primary);width:16px"></i> ${address}</p>
+        <p><i class="fas fa-box" style="color:var(--clr-primary);width:16px"></i> ${products}</p>
+        <p style="font-size:1rem;font-weight:800;color:var(--clr-primary);margin-top:.4rem">
+          <i class="fas fa-money-bill-wave"></i> ${totalAmount} AED
+        </p>
+        <div style="margin-top:.7rem">
+          <button class="admin-btn" style="font-size:.8rem;padding:.4rem .9rem"
                   onclick="showOrderInvoice('${orderKey}')">
-            <i class="fas fa-file-invoice"></i> ${isAr?'الفاتورة':'Invoice'}
+            <i class="fas fa-file-invoice"></i> ${isAr ? 'عرض الفاتورة' : 'View Invoice'}
           </button>
         </div>
       </div>`;
@@ -1898,99 +2020,6 @@ function renderOrders() {
 
   updatePageTexts();
 }
-
-// فتح modal تفاصيل الطلب مع التتبع الكامل — يقرأ من Firebase مباشرة
-window.openOrderDetail = function(orderId) {
-  if (!orderId || !currentUser || !db) return;
-  const isAr = currentLang === 'ar';
-  db.ref('users/' + currentUser.uid + '/orders/' + orderId).once('value').then(snap => {
-    if (!snap.exists()) { toast(isAr?'الطلب غير موجود':'Order not found','error'); return; }
-    const o = snap.val();
-    const statusInfo = CLIENT_TRACK_STATUSES[o.status] || CLIENT_TRACK_STATUSES.pending;
-    const statusColor = {delivered:'#10b981',cancelled:'#ef4444',shipped:'#8b5cf6',out_for_delivery:'#06b6d4',processing:'#3b82f6'}[o.status] || '#f59e0b';
-    const statusBar = buildOrderStatusBar(o.status||'pending');
-    const trackingHtml = buildTrackingTimeline(o.tracking||null);
-    const itemsList = (o.order||[]).map(p=>`
-      <div style="display:flex;align-items:center;gap:.7rem;padding:.4rem 0;border-bottom:1px solid var(--clr-border)">
-        ${p.image?`<img src="${sanitizeURL(p.image)}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:#f1f5f9;padding:2px" onerror="this.style.display='none'">` : ''}
-        <span style="flex:1;font-size:.84rem">${escapeHTML(p.name)}</span>
-        <span style="color:#64748b;font-size:.8rem">× ${p.quantity}</span>
-        <span style="color:var(--clr-primary);font-weight:700;font-size:.84rem">${(p.price*p.quantity).toLocaleString()} AED</span>
-      </div>`).join('');
-
-    window._lastOrderDetail = o;
-    const html = `
-      <div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto" id="orderDetailModal" onclick="if(event.target.id==='orderDetailModal')this.remove()">
-        <div style="background:var(--clr-card);border-radius:18px;padding:1.8rem;max-width:560px;width:100%;border:1px solid var(--clr-border);margin:auto">
-
-          <!-- Header -->
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem">
-            <div>
-              <div style="font-size:.7rem;color:var(--clr-text-muted)">${isAr?'رقم الطلب':'Order ID'}</div>
-              <div style="font-weight:800;color:var(--clr-primary);font-size:1rem">${escapeHTML(o.orderId||'—')}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:.7rem">
-              <span style="font-size:.78rem;background:${statusColor}22;color:${statusColor};padding:4px 12px;border-radius:20px;font-weight:700">
-                <i class="fas ${statusInfo.icon}" style="font-size:.6rem"></i> ${isAr?statusInfo.ar:statusInfo.en}
-              </span>
-              <button onclick="document.getElementById('orderDetailModal').remove()" style="background:var(--clr-bg);border:1.5px solid var(--clr-border);color:var(--clr-text);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- شريط التقدم -->
-          ${statusBar}
-
-          <!-- المنتجات -->
-          <div style="background:var(--clr-bg);border-radius:var(--radius-sm);padding:.8rem;margin:.9rem 0;border:1px solid var(--clr-border)">
-            <div style="font-size:.72rem;color:var(--clr-text-muted);font-weight:600;margin-bottom:.5rem"><i class="fas fa-box"></i> ${isAr?'المنتجات':'Items'}</div>
-            ${itemsList}
-            <div style="display:flex;justify-content:space-between;padding:.5rem 0 .1rem;font-weight:800;border-top:1px solid var(--clr-border);margin-top:.3rem">
-              <span>${isAr?'الإجمالي':'Total'}</span>
-              <span style="color:var(--clr-primary)">${(o.total||0).toLocaleString()} AED</span>
-            </div>
-          </div>
-
-          <!-- بيانات العميل -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.9rem">
-            <div style="background:var(--clr-bg);border-radius:10px;padding:.7rem;border:1px solid var(--clr-border)">
-              <div style="font-size:.68rem;color:var(--clr-text-muted);margin-bottom:.15rem">${isAr?'الاسم':'Name'}</div>
-              <div style="font-weight:700;font-size:.86rem">${escapeHTML(o.customer?.fullName||o.userName||'—')}</div>
-            </div>
-            <div style="background:var(--clr-bg);border-radius:10px;padding:.7rem;border:1px solid var(--clr-border)">
-              <div style="font-size:.68rem;color:var(--clr-text-muted);margin-bottom:.15rem">${isAr?'الجوال':'Phone'}</div>
-              <div style="font-weight:700;font-size:.86rem;direction:ltr">${escapeHTML(o.customer?.phone||'—')}</div>
-            </div>
-            <div style="background:var(--clr-bg);border-radius:10px;padding:.7rem;border:1px solid var(--clr-border);grid-column:span 2">
-              <div style="font-size:.68rem;color:var(--clr-text-muted);margin-bottom:.15rem">${isAr?'العنوان':'Address'}</div>
-              <div style="font-size:.86rem">${escapeHTML(o.customer?.address||'—')}</div>
-            </div>
-          </div>
-
-          <!-- نظام التتبع الكامل -->
-          <div style="background:var(--clr-bg);border-radius:var(--radius-md);padding:1rem;border:1px solid var(--clr-border)">
-            <div style="font-size:.82rem;font-weight:700;color:var(--clr-primary);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem">
-              <i class="fas fa-route"></i> ${isAr?'تتبع الطلب':'Order Tracking'}
-            </div>
-            ${trackingHtml || `<p style="text-align:center;color:var(--clr-text-muted);font-size:.82rem;padding:.5rem">${isAr?'لا توجد تحديثات بعد':'No updates yet'}</p>`}
-          </div>
-
-          <!-- زر الفاتورة -->
-          <div style="margin-top:1rem">
-            <button style="width:100%;padding:.65rem;background:var(--clr-primary);color:#fff;border:none;border-radius:var(--radius-sm);font-weight:700;cursor:pointer;font-size:.9rem"
-                    onclick="document.getElementById('orderDetailModal').remove(); const _ik='inv_det_'+Date.now(); try{sessionStorage.setItem(_ik,JSON.stringify(window._lastOrderDetail||{}));}catch(e){} showOrderInvoice(_ik)">
-              <i class="fas fa-file-invoice"></i> ${isAr?'عرض الفاتورة':'View Invoice'}
-            </button>
-          </div>
-        </div>
-      </div>`;
-
-    const d = document.createElement('div');
-    d.innerHTML = html;
-    document.body.appendChild(d.firstChild);
-  }).catch(() => toast(isAr?'حدث خطأ':'Error occurred','error'));
-};
 
 window.showOrderInvoice = function(key) {
   try {
@@ -2028,40 +2057,17 @@ function loadOrders() {
     } catch(e) { return Promise.resolve([]); }
   }
 
-  // Logged in: read from Firebase with real-time tracking updates
+  // Logged in: read from Firebase, fallback to local if empty/error
   return db.ref('users/' + currentUser.uid + '/orders').once('value')
     .then(snap => {
       const fbOrders = snap.exists() ? Object.values(snap.val()) : [];
+      // Filter out orders with no data (old incomplete entries)
       const validOrders = fbOrders.filter(o => o && (o.customer || o.total || o.order));
-      const merged = mergeWithLocal(validOrders);
-      // Setup real-time listener for status/tracking changes
-      setupOrdersListener();
-      return merged;
+      return mergeWithLocal(validOrders);
     })
     .catch(() => {
       try { return JSON.parse(localStorage.getItem('orders_local') || '[]'); } catch(e) { return []; }
     });
-}
-
-let ordersListener = null;
-function setupOrdersListener() {
-  if (!currentUser || !db || ordersListener) return;
-  // نستمع لمسار المستخدم — الأدمن يكتب فيه status وtracking مباشرة
-  setTimeout(() => {
-    if (!currentUser || !db || ordersListener) return;
-    ordersListener = db.ref('users/' + currentUser.uid + '/orders').on('value', snap => {
-      const h = window.location.hash;
-      if (h === '#/orders' || h === '#/orders/') {
-        renderOrders();
-      }
-    });
-  }, 800);
-}
-function cleanupOrdersListener() {
-  if (ordersListener && currentUser && db) {
-    try { db.ref('users/' + currentUser.uid + '/orders').off('value', ordersListener); } catch(e) {}
-    ordersListener = null;
-  }
 }
 function generateUniqueOrderId() { let n; do { n='A'+Math.floor(1000000+Math.random()*9000000); } while(generatedOrderIds.includes(n)); generatedOrderIds.push(n); return n; }
 function saveOrder(data) {
@@ -2102,15 +2108,13 @@ function saveOrder(data) {
     userName: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'مستخدم')
   };
 
-  // نستخدم orderId نفسه كـ key في Firebase حتى يتطابق مع نظام الأدمن
-  // الأدمن يكتب في: orders/{orderId} و users/{uid}/orders/{orderId}
-  const dataWithMeta = { ...firebaseData, firebaseKey: orderId };
-  return db.ref('users/' + currentUser.uid + '/orders/' + orderId).set(dataWithMeta)
-    .then(() => db.ref('orders/' + orderId).set(dataWithMeta))
+  const nr = db.ref('users/' + currentUser.uid + '/orders').push();
+  return nr.set(firebaseData)
+    .then(() => db.ref('orders/' + nr.key).set(firebaseData))
     .then(() => orderId)
     .catch(err => {
       console.error('Firebase save error:', err);
-      return orderId;
+      return orderId; // fallback: data already in localStorage
     });
 }
 
@@ -2251,23 +2255,7 @@ window.googleLogin=googleLogin; window.facebookLogin=facebookLogin; window.micro
 function handleAuthChange(user) {
   const prev = currentUser; currentUser = user; updUI(); updateUserContainer();
   if (user) {
-    if (db) {
-      // تسجيل / تحديث بيانات المستخدم فور تسجيل الدخول أو إنشاء الحساب
-      db.ref('users/'+user.uid+'/profile').once('value').then(snap => {
-        const ex = snap.exists() ? snap.val() : {};
-        const profileData = {
-          name: ex.name || user.displayName || (user.email ? user.email.split('@')[0] : 'مستخدم'),
-          email: user.email || ex.email || '',
-          phone: ex.phone || '',
-          photoURL: user.photoURL || ex.photoURL || '',
-          createdAt: ex.createdAt || new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          provider: (user.providerData && user.providerData[0]) ? user.providerData[0].providerId : 'password'
-        };
-        // حفظ في /users/{uid}/profile (للأدمن يشوفه)
-        return db.ref('users/'+user.uid+'/profile').set(profileData);
-      }).catch(()=>{});
-    }
+    if (db) { db.ref('users/'+user.uid+'/profile').once('value').then(snap => { const ex=snap.exists()?snap.val():{};return db.ref('users/'+user.uid+'/profile').set({name:ex.name||user.displayName||(user.email?user.email.split('@')[0]:'مستخدم'),email:user.email||ex.email||'',phone:ex.phone||'',photoURL:user.photoURL||ex.photoURL||'',createdAt:ex.createdAt||new Date().toISOString(),lastLogin:new Date().toISOString(),provider:(user.providerData&&user.providerData[0])?user.providerData[0].providerId:'password'});}).catch(()=>{}); }
     const p = prev ? Promise.resolve() : mergeGC(); p.then(() => { loadCart(); loadWishlist(); loadAddrs(); });
   } else {
     if (cartUnsub&&prev&&db){try{db.ref('users/'+prev.uid+'/cart').off();}catch(e){}} if(wishUnsub&&prev&&db){try{db.ref('users/'+prev.uid+'/wishlist').off();}catch(e){}}
@@ -2336,10 +2324,13 @@ function init() {
 
   if (typeof firebase !== 'undefined') { initFirebase(); loadProducts(); }
   else {
-    window.addEventListener('load', ()=>{ if(typeof firebase!=='undefined'){initFirebase();} loadProducts(); })
+    window.addEventListener('load', ()=>{ if(typeof firebase!=='undefined'){initFirebase();} loadProducts(); });
+    setTimeout(()=>{ if(typeof firebase==='undefined'){loadProducts();updateUserContainer();} },3000);
   }
 }
-document.addEventListener('DOMContentLoaded', init);
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
 </script>
 </body>
 </html>
